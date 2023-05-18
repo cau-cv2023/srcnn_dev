@@ -11,7 +11,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import time
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
+print('using device : ' + device.type)
 
 data_list = glob.glob('datas/img_align_celeba/*.jpg')
 
@@ -93,7 +94,7 @@ class SRdataset(Dataset):
         return input_sample,label_sample
 
 train_ds = SRdataset(data_list)
-train_dl = DataLoader(train_ds, batch_size=64)
+train_dl = DataLoader(train_ds, batch_size=32)
 
 for image, label in train_dl:
   img = image[0]
