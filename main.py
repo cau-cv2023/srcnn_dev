@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
+from tqdm import tqdm
 
 import math
 import torch.nn as nn
@@ -25,6 +26,7 @@ def train_step(model, data_dl):
     running_loss = 0.0
     running_psnr = 0.0
 
+    pbar = tqdm(total=len(data_dl), desc="Training", ncols=80)  # 진행바 생성
     for i, (image, label) in enumerate(data_dl):
         image = image.to(device)
         label = label.to(device)
@@ -38,6 +40,12 @@ def train_step(model, data_dl):
         running_loss += loss.item()
         batch_psnr = psnr(label, outputs)
         running_psnr += batch_psnr
+
+        # 진행바 업데이트
+        pbar.set_postfix({"loss": running_loss / (i + 1), "PSNR": running_psnr / (i + 1)})
+        pbar.update()
+
+    pbar.close()
 
     final_loss = running_loss / len(data_dl.dataset)
     final_psnr = running_psnr / int(len(train_ds) / data_dl.batch_size)
